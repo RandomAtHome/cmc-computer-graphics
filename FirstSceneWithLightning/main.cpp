@@ -120,6 +120,7 @@ int main()
     Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
     Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");
     Shader lightingShader("Shaders/shader.vert", "Shaders/light_cube.frag");
+    glm::vec3 lighting_position(1.f, 1.5f, -1.f);
      //isn't obligatory to call in game loop
     
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
@@ -139,14 +140,16 @@ int main()
         mousePrevX = mouseNewX;
         mousePrevY = mouseNewY;
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindVertexArray(lightVAO);
         lightingShader.Use();
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 10.f, 0.f))));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(
+            glm::translate(glm::mat4(1.f), lighting_position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f))
+        ));
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
@@ -160,7 +163,7 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
  
         GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
-        for (GLuint i = 0; i < 10; i++)
+        for (GLuint i = 0; i < 1; i++)
         {
             glm::mat4 model(1.f);
             model = glm::translate(model, cubePositions[i]);
