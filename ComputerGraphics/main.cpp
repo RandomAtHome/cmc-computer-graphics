@@ -33,6 +33,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_R && action == GLFW_PRESS) {
         direction *= -1;
     }
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+        direction = direction ? 0 : 1;
+    }
 }
 
 int main()
@@ -73,8 +76,8 @@ int main()
 
     GLfloat vertices[] = {
         // Позиции          // Цвета             // Текстурные координаты
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Верхний правый
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Нижний правый
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.f, 1.0f,   // Верхний правый
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.f, 0.0f,   // Нижний правый
         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Нижний левый
         -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Верхний левый
     };
@@ -82,12 +85,7 @@ int main()
         0, 1, 3, // First Triangle
         1, 2, 3  // Second Triangle
     };
-    GLfloat texCoords[] = {
-        0.0f, 0.0f,  // Нижний левый угол 
-        1.0f, 0.0f,  // Нижний правый угол
-        0.5f, 1.0f   // Верхняя центральная сторона
-    };
-
+   
     // Load, create texture and generate mipmaps
     int tex_width, tex_height;
     unsigned char* box_image = SOIL_load_image("Textures/container.jpg", &tex_width, &tex_height, 0, SOIL_LOAD_RGB);
