@@ -10,15 +10,8 @@
 #include <iostream>
 
 // GLEW VERSION IS 4.0
-void renderScene(void)
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0, 0.3, 0.3, 1.0);
 
-    glutSwapBuffers();
-}
-
-GLuint texture;
+int direction = 1;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -28,16 +21,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
     if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
     if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        direction *= -1;
     }
 }
 
@@ -96,9 +90,14 @@ int main()
 
     // Load, create texture and generate mipmaps
     int tex_width, tex_height;
-    unsigned char* image = SOIL_load_image("Textures/container.jpg", &tex_width, &tex_height, 0, SOIL_LOAD_RGB);
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    unsigned char* box_image = SOIL_load_image("Textures/container.jpg", &tex_width, &tex_height, 0, SOIL_LOAD_RGB);
+
+    GLuint texture1, texture2;
+
+    glGenTextures(1, &texture1);
+   
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
     // Set our texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -106,11 +105,30 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, box_image);
     glGenerateMipmap(GL_TEXTURE_2D);
-
-    SOIL_free_image_data(image);
+    SOIL_free_image_data(box_image);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &texture2);
+    unsigned char* face_image = SOIL_load_image("Textures/awesomeface.png", &tex_width, &tex_height, 0, SOIL_LOAD_RGB);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    // Set our texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, face_image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(face_image);
+    glBindTexture(GL_TEXTURE_2D, 0);
+   
+
+    
+
 
     GLuint VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -147,21 +165,27 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ourShader.Use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         GLint transformLoc  = glGetUniformLocation(ourShader.Program, "transform");
         glm::mat4 trans(1.f);
-        trans = glm::rotate(trans, glm::radians(45.f), glm::vec3(0.0f, 0.0f, 1.f));
+        trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(90.f) * direction, glm::vec3(0.0f, 0.0f, 1.f));
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         //// Render
-  
-   
+        GLint colorLoc = glGetUniformLocation(ourShader.Program, "col_transform");
+        glm::vec4 col_transform((GLfloat)sin(glfwGetTime()), -(GLfloat)cos(glfwGetTime()), 0.f, 0.f);
+        glUniform4fv(colorLoc, 1, glm::value_ptr(col_transform));
 
+        ourShader.Use();
         // Swap the screen buffers
         glfwSwapBuffers(window);
     }
