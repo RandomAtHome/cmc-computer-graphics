@@ -104,16 +104,20 @@ int main()
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
     //////////////////////////////////Pre-loop configs
@@ -121,6 +125,7 @@ int main()
     Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");
     Shader lightingShader("Shaders/shader.vert", "Shaders/light_cube.frag");
     glm::vec3 lighting_position(1.f, 1.5f, -1.f);
+    glm::vec3 box_color(1.0f, 0.5f, 0.31f);
      //isn't obligatory to call in game loop
     
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
@@ -155,7 +160,7 @@ int main()
 
         glBindVertexArray(VAO);
         ourShader.Use();
-        glUniform3f(glGetUniformLocation(ourShader.Program, "objectColor"), 1.0f, 0.5f, 0.31f);
+        glUniform3f(glGetUniformLocation(ourShader.Program, "objectColor"),box_color.x, box_color.y, box_color.z);
         glUniform3f(glGetUniformLocation(ourShader.Program, "lightColor"), 1.0f, 1.0f, 1.0f); // зададим цвет источника света (белый)
         //glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime() * 1.f, glm::vec3(0.f, 0.f, 1.f));
         //glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "rotation"), 1, GL_FALSE, glm::value_ptr(rotation));
