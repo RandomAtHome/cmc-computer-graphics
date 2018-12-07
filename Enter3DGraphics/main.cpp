@@ -31,8 +31,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {}
-
 void processCameraMovement(Camera &camera) {
     if (pressedKeys[GLFW_KEY_SPACE]) {
         camera.ProcessKeyboard(UP, frameDeltaTime);
@@ -79,7 +77,6 @@ int main()
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
     glViewport(0, 0, screenWidth, screenHeight);
     glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(window, &mousePrevX, &mousePrevY);
@@ -164,14 +161,15 @@ int main()
         frameDeltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
+        glfwPollEvents();
+        processCameraMovement(mainCamera);
+
         double mouseNewX, mouseNewY;
         glfwGetCursorPos(window, &mouseNewX, &mouseNewY);
         mainCamera.ProcessMouseMovement(mouseNewX - mousePrevX, -(mouseNewY - mousePrevY));
         mousePrevX = mouseNewX;
         mousePrevY = mouseNewY;
 
-        glfwPollEvents();
-        processCameraMovement(mainCamera);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
