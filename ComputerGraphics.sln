@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputerGraphics", "Compute
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Enter3DGraphics", "Enter3DGraphics\Enter3DGraphics.vcxproj", "{E5901110-3DF5-42D2-AF14-86A76FF64950}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FirstSceneWithLightning", "FirstSceneWithLightning\FirstSceneWithLightning.vcxproj", "{DA348783-E4DF-40A3-A622-E6C030885144}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{E5901110-3DF5-42D2-AF14-86A76FF64950}.Release|x64.Build.0 = Release|x64
 		{E5901110-3DF5-42D2-AF14-86A76FF64950}.Release|x86.ActiveCfg = Release|Win32
 		{E5901110-3DF5-42D2-AF14-86A76FF64950}.Release|x86.Build.0 = Release|Win32
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Debug|x64.ActiveCfg = Debug|x64
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Debug|x64.Build.0 = Debug|x64
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Debug|x86.ActiveCfg = Debug|Win32
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Debug|x86.Build.0 = Debug|Win32
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Release|x64.ActiveCfg = Release|x64
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Release|x64.Build.0 = Release|x64
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Release|x86.ActiveCfg = Release|Win32
+		{DA348783-E4DF-40A3-A622-E6C030885144}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
