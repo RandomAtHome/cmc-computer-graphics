@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "Camera.h"
 #include "cube_vertices.h"
 
 #include "GL/glew.h"
@@ -121,11 +122,11 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////////////////////////////////Pre-loop configs
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");    
+    Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
+    Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");
     ourShader.Use(); //isn't obligatory to call in game loop
+    
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
-    glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -3.0f));
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
@@ -139,11 +140,10 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
-
+      
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime() * 1.f, glm::vec3(0.f, 0.f, 1.f));
-
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "rotation"), 1, GL_FALSE, glm::value_ptr(rotation));
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
