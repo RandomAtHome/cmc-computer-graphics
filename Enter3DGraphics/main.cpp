@@ -14,8 +14,9 @@
 // GLEW VERSION IS 4.0
 
 bool pressedKeys[1024];
-GLfloat frameDeltaTime = 0.1f;
-GLfloat prevFrameTime = glfwGetTime(); 
+GLfloat frameDeltaTime = 0.0f;
+GLfloat lastFrameTime = 0.0; 
+double mousePrevX, mousePrevY;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -29,6 +30,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 }
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {}
 
 void processCameraMovement(Camera &camera) {
     if (pressedKeys[GLFW_KEY_SPACE]) {
@@ -53,17 +56,10 @@ void processCameraMovement(Camera &camera) {
 
 int main()
 {
-    //Инициализация GLFW
     glfwInit();
-    //Настройка GLFW
-    //Задается минимальная требуемая версия OpenGL. 
-    //Мажорная 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //Минорная
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //Установка профайла для которого создается контекст
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //Выключение возможности изменения размера окна
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     GLFWwindow* window = glfwCreateWindow(800, 600, "Learn3DOpenGL", nullptr, nullptr);
     if (window == nullptr)
@@ -83,8 +79,13 @@ int main()
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
     glViewport(0, 0, screenWidth, screenHeight);
     glfwSetKeyCallback(window, key_callback);
-
+    glfwSetCursorPosCallback(window, mouse_callback);
     glEnable(GL_DEPTH_TEST);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwGetCursorPos(window, &mousePrevX, &mousePrevY);
+
+    //////////////////////////////////Verticies
+    //extern float *cube_vertices;
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
@@ -159,8 +160,16 @@ int main()
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
-        frameDeltaTime = glfwGetTime() - prevFrameTime;
-        prevFrameTime += frameDeltaTime;
+        GLfloat currentFrameTime = glfwGetTime();
+        frameDeltaTime = currentFrameTime - lastFrameTime;
+        lastFrameTime = currentFrameTime;
+
+        double mouseNewX, mouseNewY;
+        glfwGetCursorPos(window, &mouseNewX, &mouseNewY);
+        mainCamera.ProcessMouseMovement(mouseNewX - mousePrevX, -(mouseNewY - mousePrevY));
+        mousePrevX = mouseNewX;
+        mousePrevY = mouseNewY;
+
         glfwPollEvents();
         processCameraMovement(mainCamera);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
