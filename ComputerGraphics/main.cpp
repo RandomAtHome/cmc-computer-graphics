@@ -12,6 +12,7 @@
 // GLEW VERSION IS 4.0
 
 int direction = 1;
+GLfloat mix_power = 0.0f;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -35,6 +36,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     if (key == GLFW_KEY_S && action == GLFW_PRESS) {
         direction = direction ? 0 : 1;
+    }
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+        mix_power += 0.1f;
+        if (mix_power > 1.f) mix_power = 1.f;
+        std::cout << mix_power << std::endl;
+    }
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+        mix_power -= 0.1f;
+        if (mix_power < 0.f) mix_power = 0.f;
+        std::cout << mix_power << std::endl;
     }
 }
 
@@ -170,9 +181,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glUniform1f(glGetUniformLocation(ourShader.Program, "mix_power"), (GLfloat)mix_power);
 
         GLint transformLoc  = glGetUniformLocation(ourShader.Program, "transform");
         glm::mat4 trans(1.f);
@@ -184,6 +193,10 @@ int main()
         glUniform4fv(colorLoc, 1, glm::value_ptr(col_transform));
 
         ourShader.Use();
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
         // Swap the screen buffers
         glfwSwapBuffers(window);
     }
