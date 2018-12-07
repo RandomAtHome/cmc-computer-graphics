@@ -13,12 +13,41 @@
 
 // GLEW VERSION IS 4.0
 
+bool pressedKeys[1024];
+GLfloat frameDeltaTime = 0.1f;
+GLfloat prevFrameTime = glfwGetTime(); 
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    // Когда пользователь нажимает ESC, мы устанавливаем свойство WindowShouldClose в true, 
-    // и приложение после этого закроется
+    if (action == GLFW_PRESS) {
+        pressedKeys[key] = true;
+    } else if (action == GLFW_RELEASE) {
+        pressedKeys[key] = false;
+    }
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+}
+
+void processCameraMovement(Camera &camera) {
+    if (pressedKeys[GLFW_KEY_SPACE]) {
+        camera.ProcessKeyboard(UP, frameDeltaTime);
+    }
+    if (pressedKeys[GLFW_KEY_X]) {
+        camera.ProcessKeyboard(DOWN, frameDeltaTime);
+    }
+    if (pressedKeys[GLFW_KEY_W]) {
+        camera.ProcessKeyboard(FORWARD, frameDeltaTime);
+    }
+    if (pressedKeys[GLFW_KEY_A]) {
+        camera.ProcessKeyboard(LEFT, frameDeltaTime);
+    }
+    if (pressedKeys[GLFW_KEY_S]) {
+        camera.ProcessKeyboard(BACKWARD, frameDeltaTime);
+    }
+    if (pressedKeys[GLFW_KEY_D]) {
+        camera.ProcessKeyboard(RIGHT, frameDeltaTime);
     }
 }
 
@@ -130,7 +159,10 @@ int main()
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
+        frameDeltaTime = glfwGetTime() - prevFrameTime;
+        prevFrameTime += frameDeltaTime;
         glfwPollEvents();
+        processCameraMovement(mainCamera);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -29,9 +29,14 @@ glm::mat4 Camera::GetViewMatrix()
 }
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
+void Camera::ProcessKeyboard(CAMERA_MOVE_DIRECTION direction, GLfloat deltaTime)
 {
+    if (direction == NONE) return;
     GLfloat velocity = this->MovementSpeed * deltaTime;
+    if (direction == UP)
+        this->Position += this->Up * velocity;
+    if (direction == DOWN)
+        this->Position -= this->Up * velocity;
     if (direction == FORWARD)
         this->Position += this->Front * velocity;
     if (direction == BACKWARD)
