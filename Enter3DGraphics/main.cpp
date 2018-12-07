@@ -54,6 +54,20 @@ int main()
     glViewport(0, 0, screenWidth, screenHeight);
     glfwSetKeyCallback(window, key_callback);
 
+    glEnable(GL_DEPTH_TEST);
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    //////////////////////////////////Buffers
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -70,7 +84,7 @@ int main()
 
     glBindVertexArray(0); // Unbind VAO
 
-    // Load, create texture and generate mipmaps
+    ///////////////////////////////////Textures
     int tex_width, tex_height;
     GLuint texture1, texture2;
 
@@ -106,32 +120,16 @@ int main()
     SOIL_free_image_data(face_image);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-
-    glEnable(GL_DEPTH_TEST);
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-
-    };
-    Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");
+    //////////////////////////////////Pre-loop configs
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    Shader ourShader("Shaders/shader.vert", "Shaders/shader.frag");    
+    ourShader.Use(); //isn't obligatory to call in game loop
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -3.0f));
     // Game loop
-    glm::mat4 projection(1.f);
-    projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
-    GLuint modelLoc = glGetUniformLocation(ourShader.Program, "model");
-    
     while (!glfwWindowShouldClose(window))
     {
-        // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
-        // Clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -142,18 +140,14 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 
-        ourShader.Use(); //isn't obligatory to call in game loop
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime() * 1.f, glm::vec3(0.f, 0.f, 1.f));
 
-        glm::mat4 rotation(1.f);
-        rotation = glm::rotate(rotation, (GLfloat)glfwGetTime() * 1.f, glm::vec3(0.f, 0.f, 1.f));
- 
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "rotation"), 1, GL_FALSE, glm::value_ptr(rotation));
-        glm::mat4 view(1.f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        
+
         glBindVertexArray(VAO);
+        GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
         for (GLuint i = 0; i < 10; i++)
         {
             glm::mat4 model(1.f);
@@ -161,16 +155,13 @@ int main()
             GLfloat angle = glm::radians(20.0f) * i;
             model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glBindVertexArray(0);
         glfwSwapBuffers(window);
     }
-    // Properly de-allocate all resources once they've outlived their purpose
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;
 }
