@@ -160,10 +160,16 @@ int main()
 
         glBindVertexArray(VAO);
         ourShader.Use();
-        ourShader.setVec3("objectColor", box_color);
+
+        ourShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        ourShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        ourShader.setFloat("material.shininess", 32.f);
+
         ourShader.setVec3("lightColor", 1.f, 1.f, 1.f);
         ourShader.setVec3("lightPos", lighting_position);
         ourShader.setVec3("viewPos", mainCamera.Position);
+        
         ourShader.setMat4("view", mainCamera.GetViewMatrix());
         ourShader.setMat4("projection", projection);
  
@@ -174,7 +180,7 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             GLfloat angle = glm::radians(20.0f) * i;
             model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
-            ourShader.setMat4("model", model)
+            ourShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glBindVertexArray(0);
