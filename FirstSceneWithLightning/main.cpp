@@ -163,8 +163,7 @@ int main()
         glUniform3f(glGetUniformLocation(ourShader.Program, "objectColor"), box_color.x, box_color.y, box_color.z);
         glUniform3f(glGetUniformLocation(ourShader.Program, "lightColor"), 1.0f, 1.0f, 1.0f); // зададим цвет источника света (белый)
         glUniform3f(glGetUniformLocation(ourShader.Program, "lightPos"), lighting_position.x, lighting_position.y, lighting_position.z);
-        //glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime() * 1.f, glm::vec3(0.f, 0.f, 1.f));
-        //glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "rotation"), 1, GL_FALSE, glm::value_ptr(rotation));
+        glUniform3f(glGetUniformLocation(ourShader.Program, "viewPos"), mainCamera.Position.x, mainCamera.Position.y, mainCamera.Position.z);
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
         glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
  
