@@ -149,6 +149,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindVertexArray(lightVAO);
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), (GLfloat)glm::radians(0.01f), glm::vec3(0.f, 0.f, 1.f));
+        rotation = glm::rotate(rotation, (GLfloat)glm::radians(0.02f*glm::sin(glfwGetTime())), glm::vec3(1.f, 0.f, 0.f));
+        lighting_position = rotation * glm::vec4(lighting_position, 1.f);
         lightingShader.Use();
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
