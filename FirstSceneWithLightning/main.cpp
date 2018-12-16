@@ -145,7 +145,7 @@ int main()
     //////////////////////////////////Verticies
     Shader ourShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
-    Model ourModel("Objects/Crysis_Model/nanosuit.obj");
+    Model ourModel("Objects/Bench/bench.obj");
     //////////////////////////////////Pre-loop configs
 
     skyboxShader.Use();
@@ -170,8 +170,11 @@ int main()
         ourShader.Use();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
-        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+       
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(0.0f, -1.f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+        model = glm::rotate(model, (GLfloat)glm::radians(180.f), glm::vec3(0.0f, 1.f, 0.f));
         ourShader.setMat4("model", model);
         ourShader.setVec3("cameraPos", mainCamera.Position);
         ourShader.setInt("reflectState", isFigureReflecting);
