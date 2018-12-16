@@ -166,8 +166,17 @@ int main()
         ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
         ourShader.setFloat("material.shininess", 32.f);
 
-        ourShader.setVec3("lightColor", 1.f, 1.f, 1.f);
-        ourShader.setVec3("lightPos", lighting_position);
+        // light properties
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+        ourShader.setVec3("light.ambient", ambientColor);
+        ourShader.setVec3("light.diffuse", diffuseColor);
+        ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("light.position", lighting_position);
         ourShader.setVec3("viewPos", mainCamera.Position);
         
         ourShader.setMat4("view", mainCamera.GetViewMatrix());
