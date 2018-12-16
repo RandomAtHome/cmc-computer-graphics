@@ -17,6 +17,9 @@ GLfloat frameDeltaTime = 0.0f;
 GLfloat lastFrameTime = 0.0; 
 bool isFlashlightOn = false;
 double mousePrevX, mousePrevY;
+Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
+const unsigned int screenWidth = 800;
+const unsigned int screenHeight = 600;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -29,6 +32,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    float xoffset = xpos - mousePrevX;
+    float yoffset = mousePrevY - ypos; // reversed since y-coordinates go from bottom to top
+    mainCamera.ProcessMouseMovement(xoffset, yoffset);
+    mousePrevX = xpos;
+    mousePrevY = ypos;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
 
 void processCameraMovement(Camera &camera) {
@@ -58,43 +77,6 @@ void processActionKeys() {
     }
 }
 
-unsigned int loadTexture(char const * path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = SOIL_load_image(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        SOIL_free_image_data(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        SOIL_free_image_data(data);
-    }
-
-    return textureID;
-}
-
 int main()
 {
     glfwInit();
@@ -116,21 +98,21 @@ int main()
         std::cout << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
-    int screenWidth, screenHeight;
-    glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-    glViewport(0, 0, screenWidth, screenHeight);
+    
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
-    glEnable(GL_DEPTH_TEST);
+    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(window, &mousePrevX, &mousePrevY);
 
+
+    glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //////////////////////////////////Verticies
     Shader ourShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Model ourModel("Objects/Crysis_Model/nanosuit.obj");
     //////////////////////////////////Pre-loop configs
-    Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -141,12 +123,6 @@ int main()
         
         processCameraMovement(mainCamera);
         processActionKeys();
-
-        double mouseNewX, mouseNewY;
-        glfwGetCursorPos(window, &mouseNewX, &mouseNewY);
-        mainCamera.ProcessMouseMovement(mouseNewX - mousePrevX, -(mouseNewY - mousePrevY));
-        mousePrevX = mouseNewX;
-        mousePrevY = mouseNewY;
 
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
