@@ -2,7 +2,6 @@
 #include "Camera.h"
 #include "cube_vertices.h"
 
-#include "GL/glew.h"
 #include "GL/freeglut.h"
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
@@ -153,9 +152,9 @@ int main()
         rotation = glm::rotate(rotation, (GLfloat)glm::radians(0.02f*glm::sin(glfwGetTime())), glm::vec3(1.f, 0.f, 0.f));
         lighting_position = rotation * glm::vec4(lighting_position, 1.f);
         lightingShader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(
             glm::translate(glm::mat4(1.f), lighting_position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f))
         ));
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -163,14 +162,14 @@ int main()
 
         glBindVertexArray(VAO);
         ourShader.Use();
-        glUniform3f(glGetUniformLocation(ourShader.Program, "objectColor"), box_color.x, box_color.y, box_color.z);
-        glUniform3f(glGetUniformLocation(ourShader.Program, "lightColor"), 1.0f, 1.0f, 1.0f); // зададим цвет источника света (белый)
-        glUniform3f(glGetUniformLocation(ourShader.Program, "lightPos"), lighting_position.x, lighting_position.y, lighting_position.z);
-        glUniform3f(glGetUniformLocation(ourShader.Program, "viewPos"), mainCamera.Position.x, mainCamera.Position.y, mainCamera.Position.z);
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3f(glGetUniformLocation(ourShader.ID, "objectColor"), box_color.x, box_color.y, box_color.z);
+        glUniform3f(glGetUniformLocation(ourShader.ID, "lightColor"), 1.0f, 1.0f, 1.0f); // зададим цвет источника света (белый)
+        glUniform3f(glGetUniformLocation(ourShader.ID, "lightPos"), lighting_position.x, lighting_position.y, lighting_position.z);
+        glUniform3f(glGetUniformLocation(ourShader.ID, "viewPos"), mainCamera.Position.x, mainCamera.Position.y, mainCamera.Position.z);
+        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
  
-        GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
+        GLint modelLoc = glGetUniformLocation(ourShader.ID, "model");
         for (GLuint i = 0; i < 1; i++)
         {
             glm::mat4 model(1.f);
