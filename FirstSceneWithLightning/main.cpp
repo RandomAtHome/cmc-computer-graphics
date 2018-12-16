@@ -152,22 +152,20 @@ int main()
         rotation = glm::rotate(rotation, (GLfloat)glm::radians(0.02f*glm::sin(glfwGetTime())), glm::vec3(1.f, 0.f, 0.f));
         lighting_position = rotation * glm::vec4(lighting_position, 1.f);
         lightingShader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(lightingShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(
-            glm::translate(glm::mat4(1.f), lighting_position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f))
-        ));
+        lightingShader.setMat4("view", mainCamera.GetViewMatrix());
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("model", glm::translate(glm::mat4(1.f), lighting_position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f)));
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         glBindVertexArray(VAO);
         ourShader.Use();
-        glUniform3f(glGetUniformLocation(ourShader.ID, "objectColor"), box_color.x, box_color.y, box_color.z);
-        glUniform3f(glGetUniformLocation(ourShader.ID, "lightColor"), 1.0f, 1.0f, 1.0f); // зададим цвет источника света (белый)
-        glUniform3f(glGetUniformLocation(ourShader.ID, "lightPos"), lighting_position.x, lighting_position.y, lighting_position.z);
-        glUniform3f(glGetUniformLocation(ourShader.ID, "viewPos"), mainCamera.Position.x, mainCamera.Position.y, mainCamera.Position.z);
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(mainCamera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        ourShader.setVec3("objectColor", box_color);
+        ourShader.setVec3("lightColor", 1.f, 1.f, 1.f);
+        ourShader.setVec3("lightPos", lighting_position);
+        ourShader.setVec3("viewPos", mainCamera.Position);
+        ourShader.setMat4("view", mainCamera.GetViewMatrix());
+        ourShader.setMat4("projection", projection);
  
         GLint modelLoc = glGetUniformLocation(ourShader.ID, "model");
         for (GLuint i = 0; i < 1; i++)
@@ -176,7 +174,7 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             GLfloat angle = glm::radians(20.0f) * i;
             model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            ourShader.setMat4("model", model)
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glBindVertexArray(0);
