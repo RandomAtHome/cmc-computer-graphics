@@ -14,9 +14,13 @@
 // GLEW VERSION IS 4.0
 
 bool pressedKeys[1024];
+GLfloat lastTimePressed[1024] = {0};
 GLfloat frameDeltaTime = 0.0f;
 GLfloat lastFrameTime = 0.0; 
+const GLfloat KEY_PRESS_THRESHOLD = 0.2;
+
 bool isFlashlightOn = false;
+bool isFigureReflecting = true;
 double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 const unsigned int screenWidth = 800;
@@ -79,6 +83,12 @@ void processCameraMovement(Camera &camera) {
 void processActionKeys() {
     if (pressedKeys[GLFW_KEY_F]) {
         isFlashlightOn ^= 1;
+    }
+    if (pressedKeys[GLFW_KEY_P]) {
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_P] > KEY_PRESS_THRESHOLD) {
+            isFigureReflecting ^= 1;
+            lastTimePressed[GLFW_KEY_P] = lastFrameTime;
+        }
     }
 }
 
@@ -164,6 +174,7 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourShader.setVec3("cameraPos", mainCamera.Position);
+        ourShader.setInt("reflectState", isFigureReflecting);
         ourModel.Draw(ourShader);
 
         // draw skybox as last
