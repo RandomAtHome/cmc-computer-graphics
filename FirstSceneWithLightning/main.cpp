@@ -140,7 +140,8 @@ int main()
 
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
-
+    ourShader.Use();
+    ourShader.setInt("skybox", 0);
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
@@ -159,10 +160,10 @@ int main()
         ourShader.Use();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
-        // render the loaded model
         glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
+        ourShader.setVec3("cameraPos", mainCamera.Position);
         ourModel.Draw(ourShader);
 
         // draw skybox as last
