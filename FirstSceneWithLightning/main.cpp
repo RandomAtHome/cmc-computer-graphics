@@ -1,6 +1,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "cube_vertices.h"
 
 #include "GL/freeglut.h"
 #include "GLFW/glfw3.h"
@@ -20,6 +21,7 @@ double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 const unsigned int screenWidth = 800;
 const unsigned int screenHeight = 600;
+bool isSilent = false;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -41,6 +43,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     mainCamera.ProcessMouseMovement(xoffset, yoffset);
     mousePrevX = xpos;
     mousePrevY = ypos;
+    if (!isSilent)
+        std::cout << "Camera direction:" << std::endl <<
+        mainCamera.Front.x << " " << mainCamera.Front.y << " " << mainCamera.Front.z << std::endl;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -105,14 +110,36 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(window, &mousePrevX, &mousePrevY);
 
-
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    vector<std::string> faces{
+        "posx.tga",
+        "negx.tga",
+        "posy.png",
+        "negy.png",
+        "posz.tga",
+        "negz.tga"
+    };
+    unsigned int cubemapTexture = loadCubemap(faces, "Textures/Skybox");
+
     //////////////////////////////////Verticies
     Shader ourShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
+    Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Model ourModel("Objects/Crysis_Model/nanosuit.obj");
     //////////////////////////////////Pre-loop configs
+
+    skyboxShader.Use();
+    skyboxShader.setInt("skybox", 0);
 
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -137,6 +164,20 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
+
+        // draw skybox as last
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        skyboxShader.Use();
+        view = glm::mat4(glm::mat3(mainCamera.GetViewMatrix())); // remove translation from the view matrix
+        skyboxShader.setMat4("view", view);
+        skyboxShader.setMat4("projection", projection);
+        // skybox cube
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
