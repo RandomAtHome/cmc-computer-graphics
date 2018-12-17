@@ -4,12 +4,9 @@
 #include "MeshGenerators.h"
 #include "cube_vertices.h"
 
-#include "GL/freeglut.h"
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <soil.h>
 #include <iostream>
 
 // GLEW VERSION IS 4.0
@@ -35,7 +32,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (action == GLFW_RELEASE) {
         pressedKeys[key] = false;
     }
-
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
@@ -56,8 +52,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
@@ -84,7 +78,10 @@ void processCameraMovement(Camera &camera) {
 
 void processActionKeys() {
     if (pressedKeys[GLFW_KEY_F]) {
-        isFlashlightOn ^= 1;
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_F] > KEY_PRESS_THRESHOLD) {
+            isFlashlightOn ^= 1;
+            lastTimePressed[GLFW_KEY_F] = lastFrameTime;
+        }
     }
     if (pressedKeys[GLFW_KEY_P]) {
         if (lastFrameTime - lastTimePressed[GLFW_KEY_P] > KEY_PRESS_THRESHOLD) {
@@ -101,7 +98,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "Learn3DOpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "Computer Graphics, Chukharev 301", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -125,6 +122,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    //////////////////////////////////Skybox VAO and VBO
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -144,7 +142,7 @@ int main()
     };
     unsigned int cubemapTexture = loadCubemap(faces, "Textures/Skybox");
 
-    //////////////////////////////////Regular stuff
+    //////////////////////////////////Regular stuff creation
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
     Shader normalShader("Shaders/NormalMapping/nm_quad.vert", "Shaders/NormalMapping/nm_quad.frag");
@@ -185,6 +183,7 @@ int main()
     Mesh normalWoodenBenchPost = createQuadMesh(textures);
     textures.clear();
     Mesh flyingCubeLamp = createCubeMesh(textures);
+    
     //////////////////////////////////Pre-loop configs
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
@@ -192,11 +191,9 @@ int main()
     modelShader.setInt("skybox", 0);
 
     // lighting info
-    // ------------- 
-
     glm::vec3 oldLightPos(0.5f, 1.0f, 0.3f);
     glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
-    // Game loop
+    // Render loop
     while (!glfwWindowShouldClose(window))
     {
         GLfloat currentFrameTime = glfwGetTime();

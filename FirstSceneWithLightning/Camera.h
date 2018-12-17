@@ -1,14 +1,10 @@
 #pragma once
 
-// Std. Includes
 #include <vector>
-
-// GL Includes
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum CAMERA_MOVE_DIRECTION {
     UP,
     DOWN,
@@ -30,16 +26,16 @@ const GLfloat ZOOM = 45.0f;
 class Camera
 {
 public:
-    // Camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+    
     // Eular Angles
     GLfloat Yaw;
     GLfloat Pitch;
-    // Camera options
+    
     GLfloat MovementSpeed;
     GLfloat MouseSensitivity;
     GLfloat Zoom;
