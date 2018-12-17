@@ -19,6 +19,7 @@ const GLfloat KEY_PRESS_THRESHOLD = 0.2;
 
 bool isFlashlightOn = false;
 bool isFigureReflecting = true;
+bool isParallaxSelfShadowing = false;
 double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 const unsigned int screenWidth = 1280;
@@ -87,6 +88,12 @@ void processActionKeys() {
         if (lastFrameTime - lastTimePressed[GLFW_KEY_P] > KEY_PRESS_THRESHOLD) {
             isFigureReflecting ^= 1;
             lastTimePressed[GLFW_KEY_P] = lastFrameTime;
+        }
+    }
+    if (pressedKeys[GLFW_KEY_T]) {
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_T] > KEY_PRESS_THRESHOLD) {
+            isParallaxSelfShadowing ^= 1;
+            lastTimePressed[GLFW_KEY_T] = lastFrameTime;
         }
     }
 }
@@ -225,6 +232,7 @@ int main()
         parallaxShader.setVec3("viewPos", mainCamera.Position);
         parallaxShader.setVec3("lightPos", lightPos);
         parallaxShader.setFloat("heightScale", 0.1f);
+        parallaxShader.setInt("selfShadowState", isParallaxSelfShadowing);
         parallaxBrickWall.Draw(parallaxShader);
 
         normalShader.Use();
