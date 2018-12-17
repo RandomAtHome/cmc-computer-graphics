@@ -46,7 +46,7 @@ public:
     /*  Functions  */
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-
+    Mesh(const Mesh &mesh);
     // render the mesh
     void Draw(Shader shader);
 

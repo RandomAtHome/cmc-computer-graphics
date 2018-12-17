@@ -92,7 +92,7 @@ void processActionKeys() {
     }
 }
 
-void renderQuad();
+Mesh createQuadMesh(std::vector<Texture> textures);
 
 int main()
 {
@@ -145,14 +145,27 @@ int main()
     unsigned int cubemapTexture = loadCubemap(faces, "Textures/Skybox");
 
     //////////////////////////////////Verticies
-    Shader modelShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Shader quadShader("Shaders/pm_quad.vert", "Shaders/pm_quad.frag");
+    Shader modelShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Model ourModel("Objects/Bench/bench.obj");
     
-    unsigned int diffuseMap = TextureFromFile("bricks.jpg", "Textures/Bricks");
-    unsigned int normalMap = TextureFromFile("bricks_NORMAL.jpg", "Textures/Bricks");
-    unsigned int heightMap = TextureFromFile("bricks_DISP.jpg", "Textures/Bricks");
+    vector<Texture> textures;
+    Texture texture;
+    texture.type = "texture_diffuse";
+    texture.path = "Textures/Bricks/bricks.jpg";
+    texture.id = TextureFromFile("bricks.jpg", "Textures/Bricks");
+    textures.push_back(texture);
+    texture.type = "texture_normal";
+    texture.path = "Textures/Bricks/bricks_NORMAL.jpg";
+    texture.id = TextureFromFile("bricks_NORMAL.jpg", "Textures/Bricks");
+    textures.push_back(texture);
+    texture.type = "texture_height";
+    texture.path = "Textures/Bricks/bricks_DISP.jpg";
+    texture.id = TextureFromFile("bricks_DISP.jpg", "Textures/Bricks");
+    textures.push_back(texture);
+    Mesh parallaxBrickWall = createQuadMesh(textures);
+    Mesh parallaxLampWall = createQuadMesh(textures);
     //////////////////////////////////Pre-loop configs
     quadShader.Use();
     quadShader.setInt("diffuseMap", 0);
@@ -194,13 +207,7 @@ int main()
         quadShader.setVec3("viewPos", mainCamera.Position);
         quadShader.setVec3("lightPos", lightPos);
         quadShader.setFloat("heightScale", 0.1f);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalMap);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, heightMap);
-        renderQuad();
+        parallaxBrickWall.Draw(quadShader);
 
         modelShader.Use();
         modelShader.setMat4("projection", projection);
@@ -214,12 +221,13 @@ int main()
         modelShader.setInt("reflectState", isFigureReflecting);
         ourModel.Draw(modelShader);
 
+        quadShader.Use();
         // render light source (simply re-renders a smaller plane at the light's position for debugging/visualization)
         model = glm::mat4(1.f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.05f));
         quadShader.setMat4("model", model);
-        renderQuad();
+        parallaxLampWall.Draw(quadShader);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -242,13 +250,9 @@ int main()
     return 0;
 }
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
+
+Mesh createQuadMesh(std::vector<Texture> textures)
 {
-    if (quadVAO == 0)
-    {
-        // positions
         glm::vec3 pos1(-1.0f, 1.0f, 0.0f);
         glm::vec3 pos2(-1.0f, -1.0f, 0.0f);
         glm::vec3 pos3(1.0f, -1.0f, 0.0f);
@@ -303,35 +307,35 @@ void renderQuad()
         bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
         bitangent2 = glm::normalize(bitangent2);
 
-
-        float quadVertices[] = {
-            // positions            // normal         // texcoords  // tangent                          // bitangent
-            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-            pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-
-            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
-            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
-            pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
+        std::vector<Vertex> verticies;
+        Vertex temp;
+        temp.Position = glm::vec3(pos1.x, pos1.y, pos1.z);
+        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
+        temp.TexCoords = glm::vec2(uv1.x, uv1.y);
+        temp.Tangent = glm::vec3(tangent1.x, tangent1.y, tangent1.z);
+        temp.Bitangent = glm::vec3(bitangent1.x, bitangent1.y, bitangent1.z);
+        verticies.push_back(temp);
+        temp.Position = glm::vec3(pos2.x, pos2.y, pos2.z);
+        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
+        temp.TexCoords = glm::vec2(uv2.x, uv2.y);
+        temp.Tangent = glm::vec3(tangent1.x, tangent1.y, tangent1.z);
+        temp.Bitangent = glm::vec3(bitangent1.x, bitangent1.y, bitangent1.z);
+        verticies.push_back(temp);
+        temp.Position = glm::vec3(pos3.x, pos3.y, pos3.z);
+        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
+        temp.TexCoords = glm::vec2(uv3.x, uv3.y);
+        temp.Tangent = glm::vec3(tangent2.x, tangent2.y, tangent2.z);
+        temp.Bitangent = glm::vec3(bitangent2.x, bitangent2.y, bitangent2.z);
+        verticies.push_back(temp);
+        temp.Position = glm::vec3(pos4.x, pos4.y, pos4.z);
+        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
+        temp.TexCoords = glm::vec2(uv4.x, uv4.y);
+        temp.Tangent = glm::vec3(tangent2.x, tangent2.y, tangent2.z);
+        temp.Bitangent = glm::vec3(bitangent2.x, bitangent2.y, bitangent2.z);
+        verticies.push_back(temp);
+        vector<unsigned int> indices = {
+            0, 1, 3,   // Первый треугольник
+            1, 2, 3    // Второй треугольник
         };
-        // configure plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+        return Mesh(verticies, indices, textures);
 }
