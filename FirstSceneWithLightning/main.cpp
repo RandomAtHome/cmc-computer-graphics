@@ -23,8 +23,8 @@ bool isFlashlightOn = false;
 bool isFigureReflecting = true;
 double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
-const unsigned int screenWidth = 800;
-const unsigned int screenHeight = 600;
+const unsigned int screenWidth = 1280;
+const unsigned int screenHeight = 720;
 bool isSilent = false;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -147,15 +147,17 @@ int main()
     //////////////////////////////////Verticies
     Shader modelShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
-    Shader quadShader("Shaders/nm_quad.vert", "Shaders/nm_quad.frag");
+    Shader quadShader("Shaders/pm_quad.vert", "Shaders/pm_quad.frag");
     Model ourModel("Objects/Bench/bench.obj");
     
-    unsigned int diffuseMap = TextureFromFile("granite.jpg", "Textures/Marble");
-    unsigned int normalMap = TextureFromFile("granite_NORMAL.jpg", "Textures/Marble");
+    unsigned int diffuseMap = TextureFromFile("bricks.jpg", "Textures/Bricks");
+    unsigned int normalMap = TextureFromFile("bricks_NORMAL.jpg", "Textures/Bricks");
+    unsigned int heightMap = TextureFromFile("bricks_DISP.jpg", "Textures/Bricks");
     //////////////////////////////////Pre-loop configs
     quadShader.Use();
     quadShader.setInt("diffuseMap", 0);
     quadShader.setInt("normalMap", 1);
+    quadShader.setInt("depthMap", 2);
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
     modelShader.Use();
@@ -177,19 +179,9 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 model;
         glm::mat4 projection = glm::perspective(glm::radians(mainCamera.Zoom), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
         glm::mat4 view = mainCamera.GetViewMatrix();
-        modelShader.Use();
-        modelShader.setMat4("projection", projection);
-        modelShader.setMat4("view", view);
-        glm::mat4 model = glm::mat4(1.f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-        model = glm::rotate(model, (GLfloat)glm::radians(180.f), glm::vec3(0.0f, 1.f, 0.f));
-        modelShader.setMat4("model", model);
-        modelShader.setVec3("cameraPos", mainCamera.Position);
-        modelShader.setInt("reflectState", isFigureReflecting);
-        //ourModel.Draw(modelShader);
 
         quadShader.Use();
         quadShader.setMat4("projection", projection);
@@ -201,16 +193,31 @@ int main()
         quadShader.setMat4("model", model);
         quadShader.setVec3("viewPos", mainCamera.Position);
         quadShader.setVec3("lightPos", lightPos);
+        quadShader.setFloat("heightScale", 0.1f);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, normalMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, heightMap);
         renderQuad();
+
+        modelShader.Use();
+        modelShader.setMat4("projection", projection);
+        modelShader.setMat4("view", view);
+        model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(0.0f, -1.f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+        model = glm::rotate(model, (GLfloat)glm::radians(180.f), glm::vec3(0.0f, 1.f, 0.f));
+        modelShader.setMat4("model", model);
+        modelShader.setVec3("cameraPos", mainCamera.Position);
+        modelShader.setInt("reflectState", isFigureReflecting);
+        ourModel.Draw(modelShader);
 
         // render light source (simply re-renders a smaller plane at the light's position for debugging/visualization)
         model = glm::mat4(1.f);
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.1f));
+        model = glm::scale(model, glm::vec3(0.05f));
         quadShader.setMat4("model", model);
         renderQuad();
 
@@ -247,10 +254,10 @@ void renderQuad()
         glm::vec3 pos3(1.0f, -1.0f, 0.0f);
         glm::vec3 pos4(1.0f, 1.0f, 0.0f);
         // texture coordinates
-        glm::vec2 uv1(0.0f, 2.0f);
+        glm::vec2 uv1(0.0f, 1.0f);
         glm::vec2 uv2(0.0f, 0.0f);
-        glm::vec2 uv3(2.0f, 0.0f);
-        glm::vec2 uv4(2.0f, 2.0f);
+        glm::vec2 uv3(1.0f, 0.0f);
+        glm::vec2 uv4(1.0f, 1.0f);
         // normal vector
         glm::vec3 nm(0.0f, 0.0f, 1.0f);
 
