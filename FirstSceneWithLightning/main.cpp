@@ -26,7 +26,7 @@ double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 const unsigned int screenWidth = 1280;
 const unsigned int screenHeight = 720;
-bool isSilent = false;
+int DebugLevel = 0;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -48,9 +48,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     mainCamera.ProcessMouseMovement(xoffset, yoffset);
     mousePrevX = xpos;
     mousePrevY = ypos;
-    if (!isSilent)
+    if (DebugLevel > 1) {
         std::cout << "Camera direction:" << std::endl <<
         mainCamera.Front.x << " " << mainCamera.Front.y << " " << mainCamera.Front.z << std::endl;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -93,8 +94,6 @@ void processActionKeys() {
     }
 }
 
-Mesh createQuadMesh(std::vector<Texture> textures);
-
 int main()
 {
     glfwInit();
@@ -102,7 +101,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Learn3DOpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "Learn3DOpenGL", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -214,7 +213,7 @@ int main()
         glm::mat4 view = mainCamera.GetViewMatrix();
 
         lightPos = oldLightPos;
-        lightPos.x += glm::sin(lastFrameTime);
+        lightPos.x += 2 * glm::sin(lastFrameTime);
 
         parallaxShader.Use();
         parallaxShader.setMat4("projection", projection);
