@@ -20,6 +20,7 @@ const GLfloat KEY_PRESS_THRESHOLD = 0.2;
 bool isFlashlightOn = false;
 bool isFigureReflecting = true;
 bool isParallaxSelfShadowing = false;
+bool isGammaCorrectionOn = false;
 double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 const unsigned int screenWidth = 1280;
@@ -84,16 +85,47 @@ void processActionKeys() {
             lastTimePressed[GLFW_KEY_F] = lastFrameTime;
         }
     }
+    if (0 && pressedKeys[GLFW_KEY_I]) { //Turned off this for now, doesn't seem to have effect
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_I] > KEY_PRESS_THRESHOLD) {
+            isGammaCorrectionOn ? glDisable(GL_FRAMEBUFFER_SRGB) : glEnable(GL_FRAMEBUFFER_SRGB);
+            isGammaCorrectionOn ^= 1;
+            if (DebugLevel > 0) {
+                std::cout <<
+                    (isGammaCorrectionOn ? "Enabled GL_FRAMEBUFFER_SRGB" : "Disabled GL_FRAMEBUFFER_SRGB")
+                    << std::endl;
+            }
+            lastTimePressed[GLFW_KEY_I] = lastFrameTime;
+        }
+    }
     if (pressedKeys[GLFW_KEY_P]) {
         if (lastFrameTime - lastTimePressed[GLFW_KEY_P] > KEY_PRESS_THRESHOLD) {
             isFigureReflecting ^= 1;
             lastTimePressed[GLFW_KEY_P] = lastFrameTime;
+            if (DebugLevel > 0) {
+                std::cout <<
+                    (isFigureReflecting ? "Bench is reflecting skybox" : "Bench is look-through")
+                    << std::endl;
+            }
         }
     }
-    if (pressedKeys[GLFW_KEY_T]) {
-        if (lastFrameTime - lastTimePressed[GLFW_KEY_T] > KEY_PRESS_THRESHOLD) {
+    if (pressedKeys[GLFW_KEY_O]) {
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_O] > KEY_PRESS_THRESHOLD) {
             isParallaxSelfShadowing ^= 1;
-            lastTimePressed[GLFW_KEY_T] = lastFrameTime;
+            lastTimePressed[GLFW_KEY_O] = lastFrameTime;
+            if (DebugLevel > 0) {
+                std::cout << 
+                    (isParallaxSelfShadowing ? "Enabled Parallax Self-Shadowing" : "Disabled Parallax Self-Shadowing")
+                    << std::endl;
+            }
+        }
+    }
+    if (pressedKeys[GLFW_KEY_G]) {
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_G] > KEY_PRESS_THRESHOLD) {
+            DebugLevel = DebugLevel ? 0 : 1;
+            lastTimePressed[GLFW_KEY_G] = lastFrameTime;
+            std::cout <<
+                (DebugLevel ? "Event log is on!" : "Event log is off!")
+                << std::endl;
         }
     }
 }
@@ -148,7 +180,6 @@ int main()
         "negz.tga"
     };
     unsigned int cubemapTexture = loadCubemap(faces, "Textures/Skybox");
-
     //////////////////////////////////Regular stuff creation
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
@@ -156,7 +187,6 @@ int main()
     Shader modelShader("Shaders/SkyboxReflection/shader.vert", "Shaders/SkyboxReflection/shader.frag");
     Shader cubeLampShader("Shaders/simpleShader.vert", "Shaders/light_cube.frag");
     Model ourModel("Objects/Bench/bench.obj");
-    
     vector<Texture> textures;
     Texture texture;
     texture.type = "texture_diffuse";
