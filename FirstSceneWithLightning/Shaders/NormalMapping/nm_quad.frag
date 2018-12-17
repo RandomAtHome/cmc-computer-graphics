@@ -1,5 +1,3 @@
-
-
 #version 330 core
 out vec4 FragColor;
 
@@ -15,9 +13,6 @@ uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_specular1;
 
-uniform vec3 lightPos;
-uniform vec3 viewPos;
-
 void main()
 {           
      // obtain normal from normal map in range [0,1]
@@ -28,7 +23,7 @@ void main()
     // get diffuse color
     vec3 color = texture(texture_diffuse1, fs_in.TexCoords).rgb;
     // ambient
-    vec3 ambient = 0.05 * color;
+    vec3 ambient = 0.1 * color;
     // diffuse
     vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
     float diff = max(dot(lightDir, normal), 0.0);
@@ -39,7 +34,6 @@ void main()
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
-    vec3 specular = vec3(0.2f) * spec * vec3(texture(texture_specular1, fs_in.TexCoords));
+    vec3 specular = vec3(0.5f) * spec * vec3(texture(texture_specular1, fs_in.TexCoords));
     FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
-

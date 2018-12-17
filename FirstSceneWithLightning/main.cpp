@@ -144,7 +144,7 @@ int main()
     };
     unsigned int cubemapTexture = loadCubemap(faces, "Textures/Skybox");
 
-    //////////////////////////////////Verticies
+    //////////////////////////////////Regular stuff
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
     Shader normalShader("Shaders/NormalMapping/nm_quad.vert", "Shaders/NormalMapping/nm_quad.frag");
@@ -174,14 +174,15 @@ int main()
     texture.id = TextureFromFile("blackwood.jpg", "Textures/Blackwood");
     textures.push_back(texture);
     texture.type = "texture_normal";
-    texture.path = "Textures/Bricks/blackwood_NORMAL.jpg";
+    texture.path = "Textures/Blackwood/blackwood_NORMAL.jpg";
     texture.id = TextureFromFile("blackwood_NORMAL.jpg", "Textures/Blackwood");
     textures.push_back(texture);
     texture.type = "texture_specular";
-    texture.path = "Textures/Bricks/blackwood_SPECULAR.jpg";
+    texture.path = "Textures/Blackwood/blackwood_SPECULAR.jpg";
     texture.id = TextureFromFile("blackwood_SPECULAR.jpg", "Textures/Blackwood");
     textures.push_back(texture);
     Mesh normalWoodenFloor = createQuadMesh(textures);
+    Mesh normalWoodenBenchPost = createQuadMesh(textures);
     textures.clear();
     Mesh flyingCubeLamp = createCubeMesh(textures);
     //////////////////////////////////Pre-loop configs
@@ -214,11 +215,12 @@ int main()
 
         lightPos = oldLightPos;
         lightPos.x += 2 * glm::sin(lastFrameTime);
+        lightPos.y += 2.5 * glm::cos(lastFrameTime);
 
         parallaxShader.Use();
         parallaxShader.setMat4("projection", projection);
         parallaxShader.setMat4("view", view);
-        // render normal-mapped quad
+  
         model = glm::mat4(1.f);
         model = glm::translate(model, glm::vec3(0.f, 0.f, -2.f));
         model = glm::scale(model, glm::vec3(2.f));
@@ -234,19 +236,26 @@ int main()
         normalShader.setVec3("viewPos", mainCamera.Position);
         normalShader.setVec3("lightPos", lightPos);
         model = glm::mat4(1.f);
-        model = glm::translate(model, glm::vec3(0.f, -2.f, 0.f));
-        model = glm::rotate(model, (GLfloat)glm::radians(90.), glm::vec3(1.f, 0.f, 0.f));
-        model = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
+        model = glm::translate(model, glm::vec3(0.f, -1.9f, 0.f));
+        model = glm::rotate(model, (GLfloat)glm::radians(270.), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::scale(model, glm::vec3(2.f));
         normalShader.setMat4("model", model);
-        normalWoodenFloor.Draw(parallaxShader);
+        normalWoodenFloor.Draw(normalShader);
+
+        normalShader.Use();
+        model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(0.f, -2.f, 6.f));
+        model = glm::rotate(model, (GLfloat)glm::radians(270.), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::scale(model, glm::vec3(2.f));
+        normalShader.setMat4("model", model);
+        normalWoodenBenchPost.Draw(normalShader);
 
         modelShader.Use();
         modelShader.setMat4("projection", projection);
         modelShader.setMat4("view", view);
         model = glm::mat4(1.f);
-        model = glm::translate(model, glm::vec3(0.0f, -2.f, 0.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.f, 6.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-        model = glm::rotate(model, (GLfloat)glm::radians(180.f), glm::vec3(0.0f, 1.f, 0.f));
         modelShader.setMat4("model", model);
         modelShader.setVec3("cameraPos", mainCamera.Position);
         modelShader.setInt("reflectState", isFigureReflecting);
