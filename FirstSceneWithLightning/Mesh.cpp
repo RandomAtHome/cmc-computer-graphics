@@ -53,7 +53,11 @@ void Mesh::Draw(Shader shader)
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    if (workWithEBO) {
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    }
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
@@ -64,10 +68,10 @@ void Mesh::Draw(Shader shader)
 // initializes all the buffer objects/arrays
 void Mesh::setupMesh()
 {
+    workWithEBO = indices.size() ? true : false;
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
     // load data into vertex buffers
@@ -77,9 +81,11 @@ void Mesh::setupMesh()
     // again translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
+    if (workWithEBO) {
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    }
     // set the vertex attribute pointers
     // vertex Positions
     glEnableVertexAttribArray(0);

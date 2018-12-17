@@ -250,6 +250,69 @@ int main()
     return 0;
 }
 
+Mesh createCubeMesh(std::vector<Texture> textures) {
+    std::vector<Vertex> verticies;
+    Vertex temp;
+    temp.Position = glm::vec3(-0.5, 0.5, 0.5); // Front Top Left
+    temp.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+    temp.TexCoords = glm::vec2(0.0f, 1.0f);
+    temp.Tangent = glm::vec3(); // 
+    temp.Bitangent = glm::vec3(); //
+    float vertices[] = {
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
+    for (int i = 0; i < 36; i++) {
+        Vertex temp;
+        temp.Position = glm::vec3(vertices[i * 8 + 0], vertices[i * 8 + 1], vertices[i * 8 + 2]); // Front Top Left
+        temp.Normal = glm::vec3(vertices[i * 8 + 3], vertices[i * 8 + 4], vertices[i * 8 + 5]);
+        temp.TexCoords = glm::vec2(vertices[i * 8 + 6], vertices[i * 8 + 7]);
+        temp.Tangent = glm::vec3(); // 
+        temp.Bitangent = glm::vec3(); //
+        verticies.push_back(temp);
+    }
+    return Mesh(verticies, std::vector<unsigned int>(), textures);
+}
 
 Mesh createQuadMesh(std::vector<Texture> textures)
 {
@@ -307,35 +370,27 @@ Mesh createQuadMesh(std::vector<Texture> textures)
         bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
         bitangent2 = glm::normalize(bitangent2);
 
-        std::vector<Vertex> verticies;
-        Vertex temp;
-        temp.Position = glm::vec3(pos1.x, pos1.y, pos1.z);
-        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
-        temp.TexCoords = glm::vec2(uv1.x, uv1.y);
-        temp.Tangent = glm::vec3(tangent1.x, tangent1.y, tangent1.z);
-        temp.Bitangent = glm::vec3(bitangent1.x, bitangent1.y, bitangent1.z);
-        verticies.push_back(temp);
-        temp.Position = glm::vec3(pos2.x, pos2.y, pos2.z);
-        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
-        temp.TexCoords = glm::vec2(uv2.x, uv2.y);
-        temp.Tangent = glm::vec3(tangent1.x, tangent1.y, tangent1.z);
-        temp.Bitangent = glm::vec3(bitangent1.x, bitangent1.y, bitangent1.z);
-        verticies.push_back(temp);
-        temp.Position = glm::vec3(pos3.x, pos3.y, pos3.z);
-        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
-        temp.TexCoords = glm::vec2(uv3.x, uv3.y);
-        temp.Tangent = glm::vec3(tangent2.x, tangent2.y, tangent2.z);
-        temp.Bitangent = glm::vec3(bitangent2.x, bitangent2.y, bitangent2.z);
-        verticies.push_back(temp);
-        temp.Position = glm::vec3(pos4.x, pos4.y, pos4.z);
-        temp.Normal = glm::vec3(nm.x, nm.y, nm.z);
-        temp.TexCoords = glm::vec2(uv4.x, uv4.y);
-        temp.Tangent = glm::vec3(tangent2.x, tangent2.y, tangent2.z);
-        temp.Bitangent = glm::vec3(bitangent2.x, bitangent2.y, bitangent2.z);
-        verticies.push_back(temp);
-        vector<unsigned int> indices = {
-            0, 1, 3,   // Первый треугольник
-            1, 2, 3    // Второй треугольник
+        float vertices[] = {
+            // positions            // normal         // texcoords  // tangent                          // bitangent
+            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+            pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+
+            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+            pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
         };
-        return Mesh(verticies, indices, textures);
+        
+        std::vector<Vertex> verticies;
+        for (int i = 0; i < 6; i++) {
+            Vertex temp;
+            temp.Position = glm::vec3(vertices[i * 14 + 0], vertices[i * 14 + 1], vertices[i * 14 + 2]); // Front Top Left
+            temp.Normal = glm::vec3(vertices[i * 14 + 3], vertices[i * 14 + 4], vertices[i * 14 + 5]);
+            temp.TexCoords = glm::vec2(vertices[i * 14 + 6], vertices[i * 14 + 7]);
+            temp.Tangent = glm::vec3(vertices[i * 14 + 8], vertices[i * 14 + 9], vertices[i * 14 + 10]); // 
+            temp.Bitangent = glm::vec3(vertices[i * 14 + 11], vertices[i * 14 + 12], vertices[i * 14 + 13]); //
+            verticies.push_back(temp);
+        }
+
+        return Mesh(verticies, std::vector<unsigned int>(), textures);
 }

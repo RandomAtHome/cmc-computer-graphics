@@ -53,6 +53,7 @@ public:
 private:
     /*  Render data  */
     unsigned int VBO, EBO;
+    bool workWithEBO;
 
     /*  Functions    */
     // initializes all the buffer objects/arrays
