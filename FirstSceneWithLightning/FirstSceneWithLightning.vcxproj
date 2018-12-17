@@ -125,6 +125,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshGenerators.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
@@ -132,6 +133,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cube_vertices.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshGenerators.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
