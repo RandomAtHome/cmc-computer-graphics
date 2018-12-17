@@ -9,9 +9,9 @@ in VS_OUT {
     vec3 TangentFragPos;
 } fs_in;
 
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
-uniform sampler2D depthMap;
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_normal1;
+uniform sampler2D texture_height1;
 
 uniform float heightScale;
 
@@ -26,11 +26,11 @@ vec2 ReliefPM(vec2 inTexCoords, vec3 inViewDir) {
 	vec2 currentTexCoords = inTexCoords;
 	float currentLayerDepth = 0.;
 
-	float currentDepthValue = texture(depthMap, currentTexCoords).r;
+	float currentDepthValue = texture(texture_height1, currentTexCoords).r;
 	while (currentDepthValue > currentLayerDepth) {
 		currentLayerDepth += deltaDepth;
 		currentTexCoords -= deltaTexcoord;
-		currentDepthValue = texture(depthMap, currentTexCoords).r;
+		currentDepthValue = texture(texture_height1, currentTexCoords).r;
 	}
 // ======
 // Relief PM 
@@ -45,7 +45,7 @@ vec2 ReliefPM(vec2 inTexCoords, vec3 inViewDir) {
 	const int _reliefSteps = 5;
 	int currentStep = _reliefSteps;
 	while (currentStep > 0) {
-		currentDepthValue = texture(depthMap, currentTexCoords).r;
+		currentDepthValue = texture(texture_height1, currentTexCoords).r;
 		deltaTexcoord *= 0.5;
 		deltaDepth *= 0.5;
 		if (currentDepthValue > currentLayerDepth) {
@@ -72,11 +72,11 @@ void main()
         discard;
 
     // obtain normal from normal map
-    vec3 normal = texture(normalMap, texCoords).rgb;
+    vec3 normal = texture(texture_normal1, texCoords).rgb;
     normal = normalize(normal * 2.0 - 1.0);   
    
     // get diffuse color
-    vec3 color = texture(diffuseMap, texCoords).rgb;
+    vec3 color = texture(texture_diffuse1, texCoords).rgb;
     // ambient
     vec3 ambient = 0.1 * color;
     // diffuse

@@ -149,7 +149,7 @@ int main()
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
     Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
     Shader normalShader("Shaders/NormalMapping/nm_quad.vert", "Shaders/NormalMapping/nm_quad.frag");
-    Shader modelShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
+    Shader modelShader("Shaders/SkyboxReflection/shader.vert", "Shaders/SkyboxReflection/shader.frag");
     Model ourModel("Objects/Bench/bench.obj");
     
     vector<Texture> textures;
@@ -178,24 +178,22 @@ int main()
     texture.path = "Textures/Bricks/blackwood_NORMAL.jpg";
     texture.id = TextureFromFile("blackwood_NORMAL.jpg", "Textures/Blackwood");
     textures.push_back(texture);
-    texture.type = "texture_height";
-    texture.path = "Textures/Bricks/blackwood_DISP.jpg";
-    texture.id = TextureFromFile("blackwood_DISP.jpg", "Textures/Blackwood");
+    texture.type = "texture_specular";
+    texture.path = "Textures/Bricks/blackwood_SPECULAR.jpg";
+    texture.id = TextureFromFile("blackwood_SPECULAR.jpg", "Textures/Blackwood");
     textures.push_back(texture);
     Mesh normalWoodenFloor = createQuadMesh(textures);
     textures.clear();
     //////////////////////////////////Pre-loop configs
     parallaxShader.Use();
-    parallaxShader.setInt("diffuseMap", 0);
-    parallaxShader.setInt("normalMap", 1);
-    parallaxShader.setInt("depthMap", 2);
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
     modelShader.Use();
     modelShader.setInt("skybox", 0);
 
     // lighting info
-    // -------------
+    // ------------- 
+
     glm::vec3 oldLightPos(0.5f, 1.0f, 0.3f);
     glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
     // Game loop
@@ -239,7 +237,7 @@ int main()
         model = glm::mat4(1.f);
         model = glm::translate(model, glm::vec3(0.f, -2.f, 0.f));
         model = glm::rotate(model, (GLfloat)glm::radians(90.), glm::vec3(1.f, 0.f, 0.f));
-        model = glm::scale(model, glm::vec3(2.f));
+        model = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
         normalShader.setMat4("model", model);
         normalWoodenFloor.Draw(parallaxShader);
 
