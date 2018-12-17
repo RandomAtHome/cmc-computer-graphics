@@ -150,6 +150,7 @@ int main()
     Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
     Shader normalShader("Shaders/NormalMapping/nm_quad.vert", "Shaders/NormalMapping/nm_quad.frag");
     Shader modelShader("Shaders/SkyboxReflection/shader.vert", "Shaders/SkyboxReflection/shader.frag");
+    Shader cubeLampShader("Shaders/simpleShader.vert", "Shaders/light_cube.frag");
     Model ourModel("Objects/Bench/bench.obj");
     
     vector<Texture> textures;
@@ -167,7 +168,6 @@ int main()
     texture.id = TextureFromFile("bricks_DISP.jpg", "Textures/Bricks");
     textures.push_back(texture);
     Mesh parallaxBrickWall = createQuadMesh(textures);
-    Mesh parallaxLampWall = createQuadMesh(textures);
     textures.clear();
 
     texture.type = "texture_diffuse";
@@ -184,8 +184,8 @@ int main()
     textures.push_back(texture);
     Mesh normalWoodenFloor = createQuadMesh(textures);
     textures.clear();
+    Mesh flyingCubeLamp = createCubeMesh(textures);
     //////////////////////////////////Pre-loop configs
-    parallaxShader.Use();
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
     modelShader.Use();
@@ -253,13 +253,14 @@ int main()
         modelShader.setInt("reflectState", isFigureReflecting);
         ourModel.Draw(modelShader);
 
-        parallaxShader.Use();
-        // render light source (simply re-renders a smaller plane at the light's position for debugging/visualization)
+        cubeLampShader.Use();
+        cubeLampShader.setMat4("projection", projection);
+        cubeLampShader.setMat4("view", view);
         model = glm::mat4(1.f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.05f));
         parallaxShader.setMat4("model", model);
-        parallaxLampWall.Draw(parallaxShader);
+        flyingCubeLamp.Draw(cubeLampShader);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
