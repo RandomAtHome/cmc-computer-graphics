@@ -147,7 +147,8 @@ int main()
 
     //////////////////////////////////Verticies
     Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
-    Shader quadShader("Shaders/pm_quad.vert", "Shaders/pm_quad.frag");
+    Shader parallaxShader("Shaders/ParallaxMapping/pm_quad.vert", "Shaders/ParallaxMapping/pm_quad.frag");
+    Shader normalShader("Shaders/NormalMapping/nm_quad.vert", "Shaders/NormalMapping/nm_quad.frag");
     Shader modelShader("Shaders/crysis_model.vert", "Shaders/crysis_model.frag");
     Model ourModel("Objects/Bench/bench.obj");
     
@@ -167,11 +168,27 @@ int main()
     textures.push_back(texture);
     Mesh parallaxBrickWall = createQuadMesh(textures);
     Mesh parallaxLampWall = createQuadMesh(textures);
+    textures.clear();
+
+    texture.type = "texture_diffuse";
+    texture.path = "Textures/Blackwood/blackwood.jpg";
+    texture.id = TextureFromFile("blackwood.jpg", "Textures/Blackwood");
+    textures.push_back(texture);
+    texture.type = "texture_normal";
+    texture.path = "Textures/Bricks/blackwood_NORMAL.jpg";
+    texture.id = TextureFromFile("blackwood_NORMAL.jpg", "Textures/Blackwood");
+    textures.push_back(texture);
+    texture.type = "texture_height";
+    texture.path = "Textures/Bricks/blackwood_DISP.jpg";
+    texture.id = TextureFromFile("blackwood_DISP.jpg", "Textures/Blackwood");
+    textures.push_back(texture);
+    Mesh normalWoodenFloor = createQuadMesh(textures);
+    textures.clear();
     //////////////////////////////////Pre-loop configs
-    quadShader.Use();
-    quadShader.setInt("diffuseMap", 0);
-    quadShader.setInt("normalMap", 1);
-    quadShader.setInt("depthMap", 2);
+    parallaxShader.Use();
+    parallaxShader.setInt("diffuseMap", 0);
+    parallaxShader.setInt("normalMap", 1);
+    parallaxShader.setInt("depthMap", 2);
     skyboxShader.Use();
     skyboxShader.setInt("skybox", 0);
     modelShader.Use();
@@ -179,6 +196,7 @@ int main()
 
     // lighting info
     // -------------
+    glm::vec3 oldLightPos(0.5f, 1.0f, 0.3f);
     glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -197,24 +215,39 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(mainCamera.Zoom), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
         glm::mat4 view = mainCamera.GetViewMatrix();
 
-        quadShader.Use();
-        quadShader.setMat4("projection", projection);
-        quadShader.setMat4("view", view);
+        lightPos = oldLightPos;
+        lightPos.x += glm::sin(lastFrameTime);
+
+        parallaxShader.Use();
+        parallaxShader.setMat4("projection", projection);
+        parallaxShader.setMat4("view", view);
         // render normal-mapped quad
         model = glm::mat4(1.f);
-        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+        model = glm::translate(model, glm::vec3(0.f, 0.f, -2.f));
         model = glm::scale(model, glm::vec3(2.f));
-        quadShader.setMat4("model", model);
-        quadShader.setVec3("viewPos", mainCamera.Position);
-        quadShader.setVec3("lightPos", lightPos);
-        quadShader.setFloat("heightScale", 0.1f);
-        parallaxBrickWall.Draw(quadShader);
+        parallaxShader.setMat4("model", model);
+        parallaxShader.setVec3("viewPos", mainCamera.Position);
+        parallaxShader.setVec3("lightPos", lightPos);
+        parallaxShader.setFloat("heightScale", 0.1f);
+        parallaxBrickWall.Draw(parallaxShader);
+
+        normalShader.Use();
+        normalShader.setMat4("projection", projection);
+        normalShader.setMat4("view", view);
+        normalShader.setVec3("viewPos", mainCamera.Position);
+        normalShader.setVec3("lightPos", lightPos);
+        model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(0.f, -2.f, 0.f));
+        model = glm::rotate(model, (GLfloat)glm::radians(90.), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::scale(model, glm::vec3(2.f));
+        normalShader.setMat4("model", model);
+        normalWoodenFloor.Draw(parallaxShader);
 
         modelShader.Use();
         modelShader.setMat4("projection", projection);
         modelShader.setMat4("view", view);
         model = glm::mat4(1.f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(0.0f, -2.f, 0.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
         model = glm::rotate(model, (GLfloat)glm::radians(180.f), glm::vec3(0.0f, 1.f, 0.f));
         modelShader.setMat4("model", model);
@@ -222,13 +255,13 @@ int main()
         modelShader.setInt("reflectState", isFigureReflecting);
         ourModel.Draw(modelShader);
 
-        quadShader.Use();
+        parallaxShader.Use();
         // render light source (simply re-renders a smaller plane at the light's position for debugging/visualization)
         model = glm::mat4(1.f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.05f));
-        quadShader.setMat4("model", model);
-        parallaxLampWall.Draw(quadShader);
+        parallaxShader.setMat4("model", model);
+        parallaxLampWall.Draw(parallaxShader);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
