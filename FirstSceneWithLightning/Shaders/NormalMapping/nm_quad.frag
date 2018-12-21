@@ -15,9 +15,7 @@ uniform sampler2D texture_specular1;
 
 void main()
 {           
-     // obtain normal from normal map in range [0,1]
     vec3 normal = texture(texture_normal1, fs_in.TexCoords).rgb;
-    // transform normal vector to range [-1,1]
     normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
    
     vec3 color = texture(texture_diffuse1, fs_in.TexCoords).rgb;
