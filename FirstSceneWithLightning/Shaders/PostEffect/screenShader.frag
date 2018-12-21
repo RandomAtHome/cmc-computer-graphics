@@ -3,12 +3,17 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+uniform int isOn;
 uniform sampler2D screenTexture;
 
 const float offset = 1.0 / 300.0;  
 
 void main()
 {
+	if (isOn == 0) {
+		FragColor = vec4(texture(screenTexture, TexCoords).rgb, 1.0);
+		return;
+	}
     vec2 offsets[9] = vec2[](
         vec2(-offset,  offset), // top-left
         vec2( 0.0f,    offset), // top-center

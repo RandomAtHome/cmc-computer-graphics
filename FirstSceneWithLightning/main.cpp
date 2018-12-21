@@ -20,6 +20,7 @@ const GLfloat KEY_PRESS_THRESHOLD = 0.2;
 bool isFlashlightOn = false;
 bool isFigureReflecting = true;
 bool isParallaxSelfShadowing = false;
+bool isPostEffectOn = false;
 bool isGammaCorrectionOn = false;
 double mousePrevX, mousePrevY;
 Camera mainCamera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -115,6 +116,17 @@ void processActionKeys() {
             if (DebugLevel > 0) {
                 std::cout << 
                     (isParallaxSelfShadowing ? "Enabled Parallax Self-Shadowing" : "Disabled Parallax Self-Shadowing")
+                    << std::endl;
+            }
+        }
+    }
+    if (pressedKeys[GLFW_KEY_E]) {
+        if (lastFrameTime - lastTimePressed[GLFW_KEY_E] > KEY_PRESS_THRESHOLD) {
+            isPostEffectOn ^= 1;
+            lastTimePressed[GLFW_KEY_E] = lastFrameTime;
+            if (DebugLevel > 0) {
+                std::cout <<
+                    (isPostEffectOn ? "Enabled PostEffect" : "Disabled PostEffect")
                     << std::endl;
             }
         }
@@ -378,6 +390,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         screenShader.Use();
+        screenShader.setBool("isOn", isPostEffectOn);
         glBindVertexArray(quadVAO);
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
         glDrawArrays(GL_TRIANGLES, 0, 6);
